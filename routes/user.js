@@ -13,8 +13,8 @@ router.post("/user/signup", async (req, res) => {
     const hash = SHA256(password + salt).toString(encBase64);
     const token = uid2(16);
 
-    let pictureToUpload = req.files.picture.path;
-    const pictureUploaded = await cloudinary.uploader.upload(pictureToUpload);
+    // let pictureToUpload = req.files.picture.path;
+    // const pictureUploaded = await cloudinary.uploader.upload(pictureToUpload);
 
     const checkEmailUser = await User.findOne({ email: req.fields.email });
     if (checkEmailUser) {
@@ -28,7 +28,7 @@ router.post("/user/signup", async (req, res) => {
           account: {
             username: req.fields.username,
             phone: req.fields.phone,
-            picture: pictureUploaded,
+            // picture: pictureUploaded,
           },
           token: token,
           hash: hash,
@@ -40,7 +40,7 @@ router.post("/user/signup", async (req, res) => {
           email: newUser.email,
           token: newUser.token,
           account: newUser.account,
-          picture: newUser.picture.secure_url,
+          // picture: newUser.picture.secure_url,
         });
       }
     }
