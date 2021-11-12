@@ -121,7 +121,7 @@ router.get("/offers", async (req, res) => {
     } else if (req.query.sort === "price-asc") {
       sort.product_price = 1;
     }
-    const limit = 4;
+    const limit = 100;
     let page = 1;
 
     const count = await Offer.countDocuments(filter);
