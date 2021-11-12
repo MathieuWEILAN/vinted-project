@@ -156,7 +156,7 @@ router.get("/offer/:id", async (req, res) => {
       select: "account",
     });
 
-    res.json(checkId.owner);
+    res.json(checkId);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
