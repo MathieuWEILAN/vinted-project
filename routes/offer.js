@@ -121,7 +121,7 @@ router.get("/offers", async (req, res) => {
     } else if (req.query.sort === "price-asc") {
       sort.product_price = 1;
     }
-    const limit = 2;
+    // const limit = 2;
     let page = 1;
 
     const count = await Offer.countDocuments(filter);
@@ -131,8 +131,8 @@ router.get("/offers", async (req, res) => {
       const checkProducts = await Offer.find(filter)
         .select("product_name product_price")
         .sort(sort)
-        .skip(page)
-        .limit(limit);
+        .skip(page);
+      // .limit(limit);
       res.json({ count: count, offers: checkProducts });
     } else {
       page = 1;
