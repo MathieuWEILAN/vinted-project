@@ -30,25 +30,24 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         owner: req.user,
       });
       //   console.log(pictureUploaded);
-      let pictureToUpload = req.files.picture.path;
-      const pictureUploaded = await cloudinary.uploader.upload(
-        pictureToUpload,
-        { folder: `/vinted/offers/${newOffer.id}` }
-      );
-      newOffer.product_image = pictureUploaded.secure_url;
-      console.log(req.fields.pictures);
+      // let pictureToUpload = req.files.picture.path;
+      // const pictureUploaded = await cloudinary.uploader.upload(
+      //   pictureToUpload,
+      //   { folder: `/vinted/offers/${newOffer.id}` }
+      // );
+      // newOffer.product_image = pictureUploaded.secure_url;
+      // console.log(req.fields.pictures);
 
       // upload several pictures
-      // const severalPicturesToUploaded = [];
-      // for (let i = 0; i < req.fields.pictures.length; i++) {
-      //   // console.log(req.files.pictures[i].path);
-      //   const picturesToUploaded = await cloudinary.uploader.upload(
-      //     req.fields.pictures[i].path,
-      //     { folder: `/vinted/offers/${newOffer.id}` }
-      //   );
-      //   severalPicturesToUploaded.push(picturesToUploaded);
-      // }
-      // newOffer.product_pictures = severalPicturesToUploaded;
+
+      console.log("req.files", req.files.picture);
+      for (let i = 0; i < req.files.length; i++) {
+        await cloudinary.uploader.upload(req.fields.picture[i].path, {
+          folder: `/vinted/offers/${newOffer.id}`,
+        });
+      }
+      newOffer.product_pictures = req.files.picture;
+      newOffer.product_image = newOffer.product_pictures[0];
       await newOffer.save();
       res.json(newOffer);
     }
