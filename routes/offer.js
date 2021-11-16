@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const stripe = require("stripe")(process.env.STRIPE_API_SECRET_KEY);
 
 const User = require("../models/User");
 const Offer = require("../models/Offer");
@@ -35,22 +36,25 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         { folder: `/vinted/offers/${newOffer.id}` }
       );
       newOffer.product_image = pictureUploaded.secure_url;
+      console.log(req.fields.pictures);
 
       // upload several pictures
-      const severalPicturesToUploaded = [];
-      for (let i = 0; i < req.files.pictures.length; i++) {
-        const picturesToUploaded = await cloudinary.uploader.upload(
-          req.files.pictures[i].path,
-          { folder: `/vinted/offers/${newOffer.id}` }
-        );
-        severalPicturesToUploaded.push(picturesToUploaded);
-      }
-      newOffer.product_pictures = severalPicturesToUploaded;
+      // const severalPicturesToUploaded = [];
+      // for (let i = 0; i < req.fields.pictures.length; i++) {
+      //   // console.log(req.files.pictures[i].path);
+      //   const picturesToUploaded = await cloudinary.uploader.upload(
+      //     req.fields.pictures[i].path,
+      //     { folder: `/vinted/offers/${newOffer.id}` }
+      //   );
+      //   severalPicturesToUploaded.push(picturesToUploaded);
+      // }
+      // newOffer.product_pictures = severalPicturesToUploaded;
       await newOffer.save();
       res.json(newOffer);
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
+    console.log(error);
   }
 });
 
@@ -171,10 +175,40 @@ router.get("/offer/:id", async (req, res) => {
       path: "owner",
       select: "account",
     });
+    const checkBuyer = await User.findOne({
+      token: req.headers.authorization.replace("Bearer ", ""),
+    });
 
-    res.json(checkId);
+    res.json({ checkId, checkBuyer });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
+
+router.post("/pay", async (req, res) => {
+  const stripeToken = req.fields.stripeToken;
+  const response = await stripe.charges.create({
+    amount: req.fields.total * 100,
+    currency: "eur",
+    description: req.fields.title,
+    source: stripeToken,
+    // idBuyer: req.fields.idBuyer,
+  });
+  if (response.status === "succeeded") {
+    res.status(200).json({ message: "Paiement validé" });
+  } else {
+    res.status(400).json({ message: "An error occured" });
+  }
+
+  const newPurchase = { title: req.fields.title, price: req.fields.total };
+  const userToModifie = await User.findById(req.fields.idBuyer);
+  if (!userToModifie) {
+    res.status(400).json({ error: "false ID" });
+  } else {
+    userToModifie.purchase.push(newPurchase);
+  }
+  await userToModifie.save();
+  console.log(userToModifie);
+});
+
 module.exports = router;

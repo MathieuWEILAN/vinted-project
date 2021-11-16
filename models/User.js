@@ -10,6 +10,7 @@ const User = mongoose.model("User", {
   token: String,
   hash: String,
   salt: String,
+  purchase: [{ type: mongoose.Schema.Types.Mixed, default: {} }],
 });
 
 module.exports = User;
