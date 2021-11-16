@@ -38,9 +38,9 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 
       // upload several pictures
       const severalPicturesToUploaded = [];
-      for (let i = 0; i < req.files.pictures; i++) {
+      for (let i = 0; i < req.files.pictures.length; i++) {
         const picturesToUploaded = await cloudinary.uploader.upload(
-          req.files.pictures.path,
+          req.files.pictures[i].path,
           { folder: `/vinted/offers/${newOffer.id}` }
         );
         severalPicturesToUploaded.push(picturesToUploaded);
