@@ -37,11 +37,15 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
       newOffer.product_image = pictureUploaded.secure_url;
 
       // upload several pictures
-      const severalPicturesToUploaded = await cloudinary.uploader.upload(
-        req.files.pictures.path,
-        { folder: `/vinted/offers/${newOffer.id}` }
-      );
-      newOffer.product_pictures = severalPicturesToUploaded.secure_url;
+      const severalPicturesToUploaded = [];
+      for (let i = 0; i < req.files.pictures; i++) {
+        const picturesToUploaded = await cloudinary.uploader.upload(
+          req.files.pictures.path,
+          { folder: `/vinted/offers/${newOffer.id}` }
+        );
+        severalPicturesToUploaded.push(picturesToUploaded);
+      }
+      newOffer.product_pictures = severalPicturesToUploaded;
       await newOffer.save();
       res.json(newOffer);
     }
