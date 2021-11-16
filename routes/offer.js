@@ -37,17 +37,17 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
       newOffer.product_image = pictureUploaded.secure_url;
 
       // upload several pictures
-      // const severalPicturesToUploaded = [];
-      // for (let i = 0; i < req.files.pictures.length; i++) {
-      //   const picturesToUploaded = await cloudinary.uploader.upload(
-      //     req.files.pictures[i].path,
-      //     { folder: `/vinted/offers/${newOffer.id}` }
-      //   );
-      //   severalPicturesToUploaded.push(picturesToUploaded);
-      // }
-      // newOffer.product_pictures = severalPicturesToUploaded;
-      // await newOffer.save();
-      // res.json(newOffer);
+      const severalPicturesToUploaded = [];
+      for (let i = 0; i < req.files.pictures.length; i++) {
+        const picturesToUploaded = await cloudinary.uploader.upload(
+          req.files.pictures[i].path,
+          { folder: `/vinted/offers/${newOffer.id}` }
+        );
+        severalPicturesToUploaded.push(picturesToUploaded);
+      }
+      newOffer.product_pictures = severalPicturesToUploaded;
+      await newOffer.save();
+      res.json(newOffer);
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
