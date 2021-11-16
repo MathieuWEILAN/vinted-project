@@ -16,7 +16,7 @@ cloudinary.config({
 });
 
 const app = express();
-app.use(formidable());
+app.use(formidable({ multiples: true }));
 app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URI);

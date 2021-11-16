@@ -37,6 +37,16 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
       newOffer.product_image = pictureUploaded.secure_url;
       await newOffer.save();
       res.json(newOffer);
+
+      // upload several pictures
+      let severalPicturesToUpload = req.files.picture.path;
+      const severalPicturesToUploaded = await cloudinary.uploader.upload(
+        severalPicturesToUpload,
+        { folder: `/vinted/offers/${newOffer.id}` }
+      );
+      newOffer.product_pictures = severalPicturesToUploaded.secure_url;
+      await newOffer.save();
+      res.json(newOffer);
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
