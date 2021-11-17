@@ -29,7 +29,7 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         ],
         owner: req.user,
       });
-      //   console.log(pictureUploaded);
+      // console.log(pictureUploaded);
       // let pictureToUpload = req.files.picture.path;
       // const pictureUploaded = await cloudinary.uploader.upload(
       //   pictureToUpload,
@@ -41,13 +41,18 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
       // upload several pictures
 
       console.log("req.files", req.files.picture);
-      for (let i = 0; i < req.files.length; i++) {
-        await cloudinary.uploader.upload(req.fields.picture[i].path, {
-          folder: `/vinted/offers/${newOffer.id}`,
-        });
+      const newArrPic = [];
+      for (let i = 0; i < req.files.picture.length; i++) {
+        const result = await cloudinary.uploader.upload(
+          req.files.picture[i].path,
+          {
+            folder: `/vinted/offers/${newOffer.id}`,
+          }
+        );
+        newArrPic.push(result);
       }
-      newOffer.product_pictures = req.files.picture;
-      newOffer.product_image = newOffer.product_pictures[0];
+      newOffer.product_pictures = newArrPic;
+      newOffer.product_image = newOffer.product_pictures[0].secure_url;
       await newOffer.save();
       res.json(newOffer);
     }
